@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/src/lab0a.cpp
+iostream
+-
+module1.h
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/src/module1.h
+module2.h
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/src/module2.h
+module3.h
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/src/module3.h
+
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/src/module1.h
+string
+-
+
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/src/module2.h
+string
+-
+
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/src/module3.h
+string
+-
+

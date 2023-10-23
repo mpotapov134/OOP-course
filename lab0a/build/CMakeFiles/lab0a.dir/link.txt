@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/lab0a.dir/src/lab0a.cpp.o CMakeFiles/lab0a.dir/src/module1.cpp.o CMakeFiles/lab0a.dir/src/module2.cpp.o CMakeFiles/lab0a.dir/src/module3.cpp.o  -o lab0a 

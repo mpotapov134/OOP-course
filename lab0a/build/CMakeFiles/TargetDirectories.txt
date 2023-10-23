@@ -1,0 +1,3 @@
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/Matvey/Documents/year 2/oop/lab0a/build/CMakeFiles/lab0a.dir
