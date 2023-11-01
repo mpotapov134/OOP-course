@@ -55,23 +55,23 @@ class CircularBuffer {
         m_buffer = nullptr;
     }
 
-    // Provides index access relative to the front element. The behaviour is
-    // undefined if idx is invalid.
+    // Provides read/mutate index access relative to the front element. The
+    // behaviour is undefined if idx is invalid.
     ContentT& operator[](int idx) {
         // Index in the allocated array
         int absolute_ind = (m_front + idx) % m_capacity;
         return m_buffer[absolute_ind];
     }
 
-    // Provides index access relative to the front element. The behaviour is
-    // undefined if idx is invalid.
+    // Provides read-only index access relative to the front element. The
+    // behaviour is undefined if idx is invalid.
     const ContentT& operator[](int idx) const {
         int absolute_ind = (m_front + idx) % m_capacity;
         return m_buffer[absolute_ind];
     }
 
-    // Provides index access relative to the front element. Throws out_of_range
-    // if the index is invalid.
+    // Provides read/mutate index access relative to the front element. Throws
+    // out_of_range if the index is invalid.
     ContentT& at(int idx) {
         if (idx < 0 || idx >= m_size) {
             throw std::out_of_range("Buffer index out of range");
@@ -80,8 +80,8 @@ class CircularBuffer {
         return m_buffer[absolute_ind];
     }
 
-    // Provides index access relative to the front element. Throws out_of_range
-    // if the index is invalid.
+    // Provides read-inly index access relative to the front element. Throws
+    // out_of_range if the index is invalid.
     const ContentT& at(int idx) const {
         if (idx < 0 || idx >= m_size) {
             throw std::out_of_range("Buffer index out of range");
@@ -99,7 +99,7 @@ class CircularBuffer {
         return m_buffer[m_front];
     }
 
-    // Returns reference to the front element. Throws out_of_range if the
+    // Returns const reference to the front element. Throws out_of_range if the
     // Buffer is empty.
     const ContentT& front() const {
         if (IsEmpty()) {
@@ -117,7 +117,7 @@ class CircularBuffer {
         return m_buffer[m_back];
     }
 
-    // Returns reference to the back element. Throws out_of_range if the Buffer
+    // Returns const reference to the back element. Throws out_of_range if the Buffer
     // is empty.
     const ContentT& back() const {
         if (IsEmpty()) {

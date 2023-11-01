@@ -1,11 +1,24 @@
 #include "../CircularBuffer.h"
 #include <gtest/gtest.h>
 
-TEST(ConstructorTests, Constr1) {
+TEST(ConstructorTests, Constr1_1) {
     int capacity = 5;
     CircularBuffer<int> cb(capacity);
     EXPECT_EQ(cb.IsEmpty(), true);
     EXPECT_EQ(cb.capacity(), capacity);
+}
+
+TEST(ConstructorTests, Constr1_2) {
+    int capacity = 0;
+    CircularBuffer<int> cb(capacity);
+    EXPECT_EQ(cb.IsEmpty(), true);
+    EXPECT_EQ(cb.IsFull(), true);
+    EXPECT_EQ(cb.capacity(), capacity);
+}
+
+TEST(ConstructorTests, Constr1_3) {
+    int capacity = -5;
+    EXPECT_THROW(CircularBuffer<int> cb(capacity), std::bad_array_new_length);
 }
 
 TEST(ConstructorTests, Constr2_1) {
@@ -34,6 +47,7 @@ TEST(ConstructorTests, CopyConstr) {
     int item = 10;
     CircularBuffer<int> cb1(capacity, item);
     cb1[1] = 15;
+
     CircularBuffer<int> cb2(cb1);
     EXPECT_EQ(cb1.size(), cb2.size());
     EXPECT_EQ(cb1.capacity(), cb2.capacity());
