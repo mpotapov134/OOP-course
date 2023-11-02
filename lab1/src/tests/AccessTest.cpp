@@ -76,8 +76,3 @@ TEST(AccessTests, BackMethod3) {
     CircularBuffer<int> cb(5);
     EXPECT_THROW(cb.back(), std::out_of_range);
 }
-
-int main(int argc, char** argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

@@ -133,8 +133,8 @@ class CircularBuffer {
         if (IsEmpty()) {
             return nullptr;
         }
-        auto buffer_begin = std::begin(m_buffer);
-        auto buffer_end = std::end(m_buffer);
+        ContentT* buffer_begin = m_buffer;
+        ContentT* buffer_end = m_buffer + m_capacity;
         std::rotate(buffer_begin, buffer_begin + m_front, buffer_end);
 
         m_front = 0;
@@ -157,8 +157,8 @@ class CircularBuffer {
         }
 
         int absolute_ind = (m_front + new_beginning) % m_capacity;
-        auto buffer_begin = std::begin(m_buffer);
-        auto buffer_end = std::end(m_buffer);
+        ContentT* buffer_begin = m_buffer;
+        ContentT* buffer_end = m_buffer + m_capacity;
         std::rotate(buffer_begin, buffer_begin + absolute_ind, buffer_end);
 
         m_front = (m_front + m_capacity - absolute_ind) % m_capacity;
@@ -213,7 +213,8 @@ class CircularBuffer {
     // resulting Buffer is linearized. new_capacity must be non-negative.
     void Resize(int new_capacity, const ContentT& item = ContentT()) {
         SetCapacity(new_capacity);
-        for (int i = 0; i < reserve(); i++) {
+        int res = reserve();
+        for (int i = 0; i < res; i++) {
             PushBack(item);
         }
     }
@@ -286,7 +287,8 @@ class CircularBuffer {
     // Deletes the back element of the Buffer and returns it. Throws
     // out_of_range if the Buffer is empty.
     ContentT& PopBack() {
-        ContentT back_element = back();
+        // This would throw std::out_of_range if the Buffer is empty
+        ContentT& back_element = back();
         m_size--;
         if (IsEmpty()) {
             m_back = m_front;
@@ -300,28 +302,38 @@ class CircularBuffer {
     // Deletes the front element of the Buffer and returns it. Throws
     // out_of_range if the Buffer is empty.
     ContentT& PopFront() {
-        ContentT front_element = front();
+        // This would throw std::out_of_range if the Buffer is empty
+        ContentT& front_element = front();
         m_size--;
         if (IsEmpty()) {
+            m_front = m_back;
+        }
+        else {
             m_front = (m_front + 1) % m_capacity;
         }
         return front_element;
     }
 
     // Inserts item into the Buffer at index pos relative to the front element.
-    // All the elements starting from pos are shifted. Throws out_of_range if
-    // the index is invalid or the Buffer is of zero capacity.
+    // All the elements starting from pos are shifted. The front element will
+    // be overwritten if the Buffer is full. Throws out_of_range if the index
+    // is invalid or the Buffer is of zero capacity.
     void Insert(int pos, const ContentT& item = ContentT()) {
         // Insertion after the last element is allowed
         if (pos < 0 || pos > m_size) {
             throw std::out_of_range("Invalid insertion index");
         }
 
-        PushBack();
-        for (int i = pos + 1; i < m_size; i++) {
+        int old_front = m_front;
+        PushBack(); // m_front might change here
+        for (int i = m_size - 1; i > pos; i--) {
             (*this)[i] = (*this)[i - 1];
         }
-        (*this)[pos] = item;
+
+        // Index in the allocated array; pos is index relative to the original
+        // front
+        int absolute_index = (old_front + pos) % m_capacity;
+        m_buffer[absolute_index] = item;
     }
 
     // Deletes Buffer elements in the range [first, last). Throws out_of_range
@@ -354,6 +366,11 @@ class CircularBuffer {
     void Clear() {
         m_size = 0;
         m_back = m_front;
+    }
+
+    // Returns pointer to the beginning of allocated memory.
+    ContentT* buffer() {
+        return m_buffer;
     }
 };
 

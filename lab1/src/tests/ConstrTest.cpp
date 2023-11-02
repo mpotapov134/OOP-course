@@ -57,8 +57,3 @@ TEST(ConstructorTests, CopyConstr) {
     cb1[2] = 20; // Modifying the original should not modify the copy
     EXPECT_NE(cb1[2], cb2[2]);
 }
-
-int main(int argc, char** argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
