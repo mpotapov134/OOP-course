@@ -1,15 +1,18 @@
 #include <stdexcept>
 #include "Reader.h"
 
-#define POS_NOT_SPECIFIED -1
-
-// Removes redundant whitespaces from the beginning and the end of string.
+// Removes redundant whitespaces from the beginning and the end of str.
 std::string& Trim(std::string& str) {
     // Remove whitespace at the front
     str = str.substr(str.find_first_not_of(" \t"));
     // Remove whitespace at the end
     str = str.substr(0, str.find_last_not_of(" \t") + 1);
     return str;
+}
+
+// Simple char to int conversion
+int ctoi(char ch) {
+    return ch - '0';
 }
 
 bool Reader::FormatIsCorrect() {
@@ -21,13 +24,12 @@ bool Reader::FormatIsCorrect() {
     return line == "#Life 1.06";
 }
 
-void Reader::SetSeekPositions() {
+void Reader::SetBlockPositions() {
     auto original_pos = m_file_stream.tellg();
     m_file_stream.seekg(0);
+    m_file_stream.ignore(); // Ignore the first line containing the format
 
-    m_file_stream.ignore(); // Ignore the first line
     auto line_pos = m_file_stream.tellg();
-
     std::string line;
     std::getline(m_file_stream, line);
     if (line.starts_with("#N")) {
@@ -49,7 +51,6 @@ void Reader::SetSeekPositions() {
     }
 
     m_coord_pos = m_file_stream.tellg();
-
     m_file_stream.seekg(original_pos);
 }
 
@@ -82,17 +83,19 @@ void Reader::Open(std::string file_name) {
             "format should be Life 1.06.";
         throw std::runtime_error(err_msg);
     }
-
-    SetSeekPositions();
+    SetBlockPositions();
 }
 
 void Reader::Close() {
     m_file_stream.close();
+    m_name_pos = POS_NOT_SPECIFIED;
+    m_rule_pos = POS_NOT_SPECIFIED;
+    m_coord_pos = POS_NOT_SPECIFIED;
 }
 
 std::string Reader::ReadName() {
     if (m_name_pos == POS_NOT_SPECIFIED) {
-        return "Unnamed";
+        throw std::runtime_error("No name specified");
     }
 
     m_file_stream.seekg(m_name_pos);
@@ -107,35 +110,56 @@ std::set<int> Reader::ReadBirthRule() {
     if (m_rule_pos == POS_NOT_SPECIFIED) {
         throw std::runtime_error("No birth rule specified");
     }
-
     m_file_stream.seekg(m_rule_pos);
     std::string rule;
     std::getline(m_file_stream, rule);
 
-    rule.erase(rule.begin(), rule.begin() + rule.find('B'));
-    rule.erase(rule.begin() + rule.find('/'), rule.end());
-    if (rule.empty()) {
+    auto pos_of_b = rule.find('B');
+    if (pos_of_b == std::string::npos) { // Did not find
         throw std::runtime_error("No birth rule specified");
     }
-    rule.erase(0, 1); // Erase 'B'
+    rule.erase(rule.begin(), rule.begin() + pos_of_b + 1);
+    rule.erase(rule.begin() + rule.find('/'), rule.end());
+    rule = Trim(rule);
 
     std::set<int> birth_rule{};
     for (const auto& ch : rule) {
-        int cells_number;
-        std::string err_msg = "Invalid birth rule. The birth rule must be "
-            "a sequence of digits in the range [0...8].";
-        try {
-            std::string character{ch};
-            cells_number = std::stoi(character);
-        } catch (std::invalid_argument) {
+        int cells_amount = ctoi(ch);
+        if (cells_amount < 0 || cells_amount >= 9) {
+            std::string err_msg = "Invalid birth rule. The birth rule must be "
+                "a sequence of digits in the range [0...8].";
             throw std::invalid_argument(err_msg);
         }
-
-        if (cells_number >= 9) {
-            throw std::invalid_argument(err_msg);
-        }
-
-        birth_rule.insert(cells_number);
+        birth_rule.insert(cells_amount);
     }
     return birth_rule;
+}
+
+std::set<int> Reader::ReadSurvivalRule() {
+    if (m_rule_pos == POS_NOT_SPECIFIED) {
+        throw std::runtime_error("No survival rule specified");
+    }
+    m_file_stream.seekg(m_rule_pos);
+    std::string rule;
+    std::getline(m_file_stream, rule);
+
+    auto pos_of_s = rule.find('S');
+    if (pos_of_s == std::string::npos) { // Did not find
+        throw std::runtime_error("No survival rule specified");
+    }
+    rule.erase(rule.begin(), rule.begin() + pos_of_s + 1);
+    rule.erase(rule.begin() + rule.find('/'), rule.end());
+    rule = Trim(rule);
+
+    std::set<int> survival_rule{};
+    for (const auto& ch : rule) {
+        int cells_amount = ctoi(ch);
+        if (cells_amount < 0 || cells_amount >= 9) {
+            std::string err_msg = "Invalid survival rule. The survival rule "
+                "must be a sequence of digits in the range [0...8].";
+            throw std::invalid_argument(err_msg);
+        }
+        survival_rule.insert(cells_amount);
+    }
+    return survival_rule;
 }
