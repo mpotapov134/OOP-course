@@ -70,7 +70,8 @@ class Reader {
 
         /**
          * @brief Read the coordinates of alive cells.
-         * @return List of alive cells' coordinates.
+         * @return Set of alive cells' coordinates.
+         * @throw std::invalid_argument if the coordinates are invalid.
         */
-        std::list<std::pair<int, int>> ReadCoords();
+        std::set<std::pair<int, int>> ReadCoords();
 };

@@ -15,6 +15,20 @@ int ctoi(char ch) {
     return ch - '0';
 }
 
+// Check if str is a valid integer
+bool IsInteger(std::string str) {
+    int pos_in_str = 0;
+    for (const auto& ch : str) {
+        if (!std::isdigit(ch)) {
+            if (!((ch == '-' || ch == '+') && pos_in_str == 0)) {
+                return false;
+            }
+        }
+        pos_in_str++;
+    }
+    return true;
+}
+
 bool Reader::FormatIsCorrect() {
     auto old_position = m_file_stream.tellg();
     m_file_stream.seekg(0);
@@ -162,4 +176,31 @@ std::set<int> Reader::ReadSurvivalRule() {
         survival_rule.insert(cells_amount);
     }
     return survival_rule;
+}
+
+std::set<std::pair<int, int>> Reader::ReadCoords() {
+    m_file_stream.seekg(m_coord_pos);
+    std::set<std::pair<int, int>> coords;
+    while (!m_file_stream.eof()) {
+        std::string line;
+        std::getline(m_file_stream, line);
+        line = Trim(line); // Remove redundant whitespaces
+
+        auto pos_of_space = line.find(' '); // x and y are separated by a space
+        std::string x_str = line.substr(0, pos_of_space);
+        std::string y_str = line.substr(pos_of_space + 1);
+
+        if (!IsInteger(x_str) || !IsInteger(y_str)) {
+            std::string err_msg = "Invalid coordinates. x and y coordinates "
+                "of each cell must be integer values. Each alive cell must be "
+                "on its own line, and the x and y coordinates are separated "
+                "by a space.";
+            throw std::invalid_argument(err_msg);
+        }
+
+        int x = std::stoi(x_str);
+        int y = std::stoi(y_str);
+        coords.insert(std::pair<int, int> {x, y});
+    }
+    return coords;
 }
