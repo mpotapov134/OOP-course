@@ -1,8 +1,10 @@
 #include <stdexcept>
+#include <iostream>
 #include "Reader.h"
 
 // Removes redundant whitespaces from the beginning and the end of str.
-std::string& Trim(std::string& str) {
+static std::string& Trim(std::string& str) {
+    if (str.empty()) return str;
     // Remove whitespace at the front
     str = str.substr(str.find_first_not_of(" \t"));
     // Remove whitespace at the end
@@ -11,18 +13,19 @@ std::string& Trim(std::string& str) {
 }
 
 // Simple char to int conversion
-int ctoi(char ch) {
+static int ctoi(char ch) {
     return ch - '0';
 }
 
 // Check if str is a valid integer
-bool IsInteger(std::string str) {
+static bool IsInteger(std::string str) {
+    if (str.empty()) return false;
+
     int pos_in_str = 0;
     for (const auto& ch : str) {
         if (!std::isdigit(ch)) {
-            if (!((ch == '-' || ch == '+') && pos_in_str == 0)) {
-                return false;
-            }
+            if ((ch == '-' || ch == '+') && pos_in_str == 0) continue;
+            return false;
         }
         pos_in_str++;
     }
@@ -30,23 +33,24 @@ bool IsInteger(std::string str) {
 }
 
 bool Reader::FormatIsCorrect() {
-    auto old_position = m_file_stream.tellg();
+    auto original_pos = m_file_stream.tellg();
     m_file_stream.seekg(0);
     std::string line;
     std::getline(m_file_stream, line);
-    m_file_stream.seekg(old_position);
+    m_file_stream.seekg(original_pos);
     return line == "#Life 1.06";
 }
 
 void Reader::SetBlockPositions() {
     auto original_pos = m_file_stream.tellg();
     m_file_stream.seekg(0);
-    m_file_stream.ignore(); // Ignore the first line containing the format
+    std::string line;
+    std::getline(m_file_stream, line); // Read the first line containing the format
 
     auto line_pos = m_file_stream.tellg();
-    std::string line;
     std::getline(m_file_stream, line);
-    if (line.starts_with("#N")) {
+
+    if (line.starts_with("#N")) { // Found the name
         m_name_pos = line_pos;
     }
     else {
@@ -56,7 +60,8 @@ void Reader::SetBlockPositions() {
 
     line_pos = m_file_stream.tellg();
     std::getline(m_file_stream, line);
-    if (line.starts_with("#R")) {
+
+    if (line.starts_with("#R")) { // Found the rules
         m_rule_pos = line_pos;
     }
     else {
@@ -92,7 +97,7 @@ void Reader::Open(std::string file_name) {
         throw std::runtime_error(err_msg);
     }
 
-    if (!FormatIsCorrect) {
+    if (!FormatIsCorrect()) {
         std::string err_msg = "Invalid format of \"" + file_name + "\". The "
             "format should be Life 1.06.";
         throw std::runtime_error(err_msg);
@@ -133,7 +138,9 @@ std::set<int> Reader::ReadBirthRule() {
         throw std::runtime_error("No birth rule specified");
     }
     rule.erase(rule.begin(), rule.begin() + pos_of_b + 1);
-    rule.erase(rule.begin() + rule.find('/'), rule.end());
+    if (rule.find('/') != std::string::npos) {
+        rule.erase(rule.begin() + rule.find('/'), rule.end());
+    }
     rule = Trim(rule);
 
     std::set<int> birth_rule{};
@@ -162,7 +169,6 @@ std::set<int> Reader::ReadSurvivalRule() {
         throw std::runtime_error("No survival rule specified");
     }
     rule.erase(rule.begin(), rule.begin() + pos_of_s + 1);
-    rule.erase(rule.begin() + rule.find('/'), rule.end());
     rule = Trim(rule);
 
     std::set<int> survival_rule{};
@@ -179,22 +185,30 @@ std::set<int> Reader::ReadSurvivalRule() {
 }
 
 std::set<std::pair<int, int>> Reader::ReadCoords() {
+    std::string err_msg = "Invalid coordinates. x and y coordinates of each "
+        "cell must be integer values. Each alive cell must be on its own line,"
+        " and the x and y coordinates are separated by a whitespace.";
+
     m_file_stream.seekg(m_coord_pos);
     std::set<std::pair<int, int>> coords;
+
     while (!m_file_stream.eof()) {
         std::string line;
         std::getline(m_file_stream, line);
         line = Trim(line); // Remove redundant whitespaces
+        if (line.empty()) continue;
 
         auto pos_of_space = line.find(' '); // x and y are separated by a space
+        if (pos_of_space == std::string::npos) {
+            throw std::invalid_argument(err_msg);
+        }
+
         std::string x_str = line.substr(0, pos_of_space);
+        x_str = Trim(x_str);
         std::string y_str = line.substr(pos_of_space + 1);
+        y_str = Trim(y_str);
 
         if (!IsInteger(x_str) || !IsInteger(y_str)) {
-            std::string err_msg = "Invalid coordinates. x and y coordinates "
-                "of each cell must be integer values. Each alive cell must be "
-                "on its own line, and the x and y coordinates are separated "
-                "by a space.";
             throw std::invalid_argument(err_msg);
         }
 
