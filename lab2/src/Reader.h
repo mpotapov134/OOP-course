@@ -1,3 +1,6 @@
+#ifndef READER_H_INCLUDED
+#define READER_H_INCLUDED
+
 #include <fstream>
 #include <string>
 #include <set>
@@ -75,3 +78,5 @@ class Reader {
         */
         std::set<std::pair<int, int>> ReadCoords();
 };
+
+#endif
