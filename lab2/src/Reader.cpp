@@ -107,6 +107,7 @@ void Reader::Open(std::string file_name) {
 
 void Reader::Close() {
     m_file_stream.close();
+    m_file_name = "";
     m_name_pos = POS_NOT_SPECIFIED;
     m_rule_pos = POS_NOT_SPECIFIED;
     m_coord_pos = POS_NOT_SPECIFIED;

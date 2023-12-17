@@ -6,6 +6,13 @@ static int mod(int dividend, int divisor) {
     return dividend % divisor;
 }
 
+void PrintSet(std::set<int> s) {
+    for (const auto& item : s) {
+        std::cout << item << ' ';
+    }
+    std::cout << "\n";
+}
+
 
 int Universe::m_width = 100;
 int Universe::m_height = 20;
@@ -37,7 +44,8 @@ int Universe::GetNumOfNeighbours(int x, int y) {
 
 Universe::Universe(std::string name, std::set<int> b_rule,
         std::set<int> s_rule, std::set<std::pair<int, int>> coords)
-        : m_name(name), m_birth_rule(b_rule), m_survival_rule(s_rule) {
+        : m_name(name), m_birth_rule(b_rule), m_survival_rule(s_rule),
+          m_iteration_number(1) {
     m_field = new char[m_width * m_height];
     FillField(coords);
 }
@@ -73,10 +81,21 @@ void Universe::Tick() {
 
     delete[] m_field;
     m_field = new_field;
+    m_iteration_number++;
 }
 
 void Universe::PrintUniverse() {
+    std::cout << "Universe name: " << m_name << "\n";
+    std::cout << "Birth rule: ";
+    PrintSet(m_birth_rule);
+    std::cout << "Survival rule: ";
+    PrintSet(m_survival_rule);
+    std::cout << "Iteration: " << m_iteration_number << "\n";
+
+    std::string cut(m_width + 2, '#');
+    std::cout << cut << "\n";
     for (int y = 0; y < m_height; y++) {
+        std::cout << '|';
         for (int x = 0; x < m_width; x++) {
             if (m_field[y * m_width + x] == 1) {
                 std::cout << '*';
@@ -85,6 +104,31 @@ void Universe::PrintUniverse() {
                 std::cout << ' ';
             }
         }
-        std::cout << "\n";
+        std::cout << "|\n";
     }
+    std::cout << cut << "\n";
+}
+
+std::string Universe::name() {
+    return m_name;
+}
+
+std::set<int> Universe::birth_rule() {
+    return m_birth_rule;
+}
+
+std::set<int> Universe::survival_rule() {
+    return m_survival_rule;
+}
+
+std::set<std::pair<int, int>> Universe::coords() {
+    std::set<std::pair<int, int>> coords = {};
+    for (int y = 0; y < m_height; y++) {
+        for (int x = 0; x < m_width; x++) {
+            if (m_field[y * m_width + x] == 1) {
+                coords.insert({x, y});
+            }
+        }
+    }
+    return coords;
 }

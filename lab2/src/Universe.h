@@ -10,6 +10,7 @@ class Universe {
     std::string m_name;
     std::set<int> m_birth_rule;
     std::set<int> m_survival_rule;
+    int m_iteration_number;
     static int m_width;
     static int m_height;
     char* m_field;
@@ -39,6 +40,18 @@ class Universe {
 
     /// @brief Prints the field of the universe to the console.
     void PrintUniverse();
+
+    /// @return The name of the universe.
+    std::string name();
+
+    /// @return The set of birth rules of the universe.
+    std::set<int> birth_rule();
+
+    /// @return The set of survival rules of the universe.
+    std::set<int> survival_rule();
+
+    /// @return Set of coordinates of alive cells.
+    std::set<std::pair<int, int>> coords();
 };
 
 #endif
