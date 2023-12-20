@@ -1,4 +1,6 @@
+#include <iostream>
 #include "CommandHandler.h"
+#include "Writer.h"
 
 /// @return true if num_of_ticks represents a valid positive integer.
 static bool TickIsValid(std::string num_of_ticks) {
@@ -14,6 +16,35 @@ static bool TickIsValid(std::string num_of_ticks) {
 
 std::set<std::string> CommandHandler::m_valid_commands {
     "dump", "tick", "t", "exit", "help"};
+
+std::string CommandHandler::m_help_message = "Game of Life\n"
+    "Available commands:\n"
+    "dump <filename> - save universe to file;\n"
+    "tick (t for short) <n=1> - calculate n (default 1) iterations and print "
+    "the universe;\n"
+    "exit - exit the game;\n"
+    "help - print this help message.";
+
+
+void CommandHandler::Dump(std::string o_file, Universe& universe) {
+    Writer file_writer(o_file);
+    file_writer.Write(universe);
+}
+
+void CommandHandler::Tick(int num_of_ticks, Universe& universe) {
+    for (int i = 0; i < num_of_ticks; i++) {
+        universe.Tick();
+    }
+    universe.PrintUniverse();
+}
+
+void CommandHandler::Exit() {
+    std::cout << "Exiting the game\n";
+}
+
+void CommandHandler::Help() {
+    std::cout << m_help_message << "\n";
+}
 
 std::pair<std::string, std::string> CommandHandler::ParseCommand(
         std::string command) {
@@ -51,7 +82,23 @@ std::pair<std::string, std::string> CommandHandler::ParseCommand(
     return {com_name, com_arg};
 }
 
-void CommandHandler::ExecuteCommand(std::pair<std::string, std::string> command,
+int CommandHandler::ExecuteCommand(std::pair<std::string, std::string> command,
         Universe& universe) {
-
+    std::string com_name = command.first;
+    if (com_name == "dump") {
+        Dump(command.second, universe);
+        return CONTINUE;
+    }
+    else if (com_name == "tick") {
+        Tick(std::stoi(command.second), universe);
+        return CONTINUE;
+    }
+    else if (com_name == "exit") {
+        Exit();
+        return EXIT;
+    }
+    else if (com_name == "help") {
+        Help();
+        return CONTINUE;
+    }
 }

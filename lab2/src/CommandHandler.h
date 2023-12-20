@@ -6,9 +6,13 @@
 #include <utility>
 #include "Universe.h"
 
+#define CONTINUE 0
+#define EXIT 1
+
 /// @brief Class for handling game commands.
 class CommandHandler {
     static std::set<std::string> m_valid_commands;
+    static std::string m_help_message;
 
     void Dump(std::string o_file, Universe& universe);
     void Tick(int num_of_ticks, Universe& universe);
@@ -31,8 +35,10 @@ class CommandHandler {
      * @param command pair of command name, command value. It must be returned
      * by the ParseCommand method. Otherwise, the behavior is undefined.
      * @param universe the universe to refer to.
+     * @return Either CONTINUE (in which case the game must go on) or EXIT
+     * (the game must be finished).
     */
-    void ExecuteCommand(std::pair<std::string, std::string> command, Universe& universe);
+    int ExecuteCommand(std::pair<std::string, std::string> command, Universe& universe);
 };
 
 #endif
