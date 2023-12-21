@@ -21,6 +21,10 @@ class Universe {
 
     public:
 
+    static std::string default_name;
+    static std::set<int> default_b_rule;
+    static std::set<int> default_s_rule;
+
     /**
      * @brief Constructs the universe.
      * @param name name of the universe.
@@ -30,8 +34,8 @@ class Universe {
      * the survival of the current alive cell; {2, 3} by default.
      * @param coords set of coordinates of alive cells.
     */
-    Universe(std::string name="Universe", std::set<int> b_rule={3},
-        std::set<int> s_rule={2, 3}, std::set<std::pair<int, int>> coords={});
+    Universe(std::string name, std::set<int> b_rule, std::set<int> s_rule,
+        std::set<std::pair<int, int>> coords);
 
     ~Universe();
 

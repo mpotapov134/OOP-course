@@ -18,13 +18,14 @@ void GetArgValues(int argc, char** argv, std::string& in, std::string& out,
         else if (arg.first == "-o") out = arg.second;
         else if (arg.first == "-i") iter = arg.second;
     }
+    if (in == "") in = "../game_files/default.lif";
 }
 
 void RunDefault(Universe& universe) {
     CommandHandler com_handler;
     while (true) {
         std::string command;
-        std::cin >> command;
+        std::getline(std::cin, command);
         std::pair<std::string, std::string> parsed_command;
         try {
             parsed_command = com_handler.ParseCommand(command);
@@ -38,7 +39,7 @@ void RunDefault(Universe& universe) {
     }
 }
 
-void RunSilent(Universe universe, std::string output_file, int iter) {
+void RunSilent(Universe& universe, std::string output_file, int iter) {
     for (int i = 0; i < iter; i++) {
         universe.Tick();
     }
@@ -52,23 +53,29 @@ int main(int argc, char** argv) {
     GetArgValues(argc, argv, input_file, output_file, iter);
 
     Reader reader(input_file);
-    std::string name = "Universe";
-    std::set<int> b_rule = {3}, s_rule = {2, 3};
-    std::set<std::pair<int, int>> coords = {};
+    std::string name;
+    std::set<int> b_rule, s_rule;
+    std::set<std::pair<int, int>> coords;
 
     try {
         name = reader.ReadName();
-    } catch (std::runtime_error) {}
+    } catch (std::runtime_error) {
+        name = Universe::default_name;
+    }
     try {
         b_rule = reader.ReadBirthRule();
-    } catch (std::runtime_error) {}
+    } catch (std::runtime_error) {
+        b_rule = Universe::default_b_rule;
+    }
     catch (std::invalid_argument exc) {
         std::cerr << exc.what();
         return -1;
     }
     try {
         s_rule = reader.ReadSurvivalRule();
-    } catch (std::runtime_error) {}
+    } catch (std::runtime_error) {
+        s_rule = Universe::default_s_rule;
+    }
     catch (std::invalid_argument exc) {
         std::cerr << exc.what();
         return -1;
@@ -83,6 +90,7 @@ int main(int argc, char** argv) {
     Universe universe(name, b_rule, s_rule, coords);
 
     if (output_file == "") {
+        universe.PrintUniverse();
         RunDefault(universe);
     }
     else {

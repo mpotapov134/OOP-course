@@ -16,6 +16,9 @@ void PrintSet(std::set<int> s) {
 
 int Universe::m_width = 100;
 int Universe::m_height = 20;
+std::string Universe::default_name = "Universe";
+std::set<int> Universe::default_b_rule = {3};
+std::set<int> Universe::default_s_rule = {2, 3};
 
 void Universe::FillField(std::set<std::pair<int, int>> coords) {
     for (int i = 0; i < m_width * m_height; i++) {

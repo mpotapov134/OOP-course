@@ -27,8 +27,13 @@ std::string CommandHandler::m_help_message = "Game of Life\n"
 
 
 void CommandHandler::Dump(std::string o_file, Universe& universe) {
-    Writer file_writer(o_file);
-    file_writer.Write(universe);
+    try {
+        Writer file_writer(o_file);
+        file_writer.Write(universe);
+        std::cout << "Universe saved to " << o_file << ".\n";
+    } catch (std::runtime_error exc) {
+        std::cout << exc.what() << "\n";
+    }
 }
 
 void CommandHandler::Tick(int num_of_ticks, Universe& universe) {
@@ -59,7 +64,8 @@ std::pair<std::string, std::string> CommandHandler::ParseCommand(
     }
 
     if (!m_valid_commands.contains(com_name)) {
-        std::string err_msg = "Unknown command: " + com_name + ".";
+        std::string err_msg = "Unknown command: " + com_name + ".\n";
+        Help();
         throw std::invalid_argument(err_msg);
     }
 
@@ -97,7 +103,7 @@ int CommandHandler::ExecuteCommand(std::pair<std::string, std::string> command,
         Exit();
         return EXIT;
     }
-    else if (com_name == "help") {
+    else {
         Help();
         return CONTINUE;
     }
