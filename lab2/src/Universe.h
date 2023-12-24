@@ -34,8 +34,10 @@ class Universe {
      * the survival of the current alive cell; {2, 3} by default.
      * @param coords set of coordinates of alive cells.
     */
-    Universe(std::string name, std::set<int> b_rule, std::set<int> s_rule,
-        std::set<std::pair<int, int>> coords);
+    Universe(std::string name=default_name, std::set<int> b_rule=default_b_rule,
+        std::set<int> s_rule=default_s_rule,
+        std::set<std::pair<int, int>> coords={});
+
 
     ~Universe();
 

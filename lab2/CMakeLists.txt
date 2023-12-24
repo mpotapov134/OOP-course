@@ -21,10 +21,22 @@ add_executable(
     tests/ReaderTest.cpp
 )
 
+add_executable(
+    UniverseTest
+    src/Universe.cpp
+    tests/UniverseTest.cpp
+)
+
 target_link_libraries(
     ReaderTest
     GTest::gtest_main
 )
 
+target_link_libraries(
+    UniverseTest
+    GTest::gtest_main
+)
+
 include(GoogleTest)
 gtest_discover_tests(ReaderTest)
+gtest_discover_tests(UniverseTest)
